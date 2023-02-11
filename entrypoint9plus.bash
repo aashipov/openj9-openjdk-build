@@ -105,8 +105,8 @@ if [[ $? -eq 0 ]]; then
     GITHUB_TOKEN=$(cat ${HOME}/.github_token)
     if [[ "${GITHUB_TOKEN}" != "" ]]; then
         GITHUB_OWNER=aashipov
-        GITHUB_REPO=openj9jdk-build
-        GITHUB_RELEASE_ID=77262219
+        GITHUB_REPO=openj9-openjdk-build
+        GITHUB_RELEASE_ID=92103892
 
         FILES_TO_UPLOAD=(${JDK_FILE_NAME} ${JRE_FILE_NAME})
         for file_to_upload in "${FILES_TO_UPLOAD[@]}"; do

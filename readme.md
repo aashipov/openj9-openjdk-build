@@ -21,7 +21,11 @@ DISTRO=opensuse docker-compose -f docker-compose-builder.yml build --pull && DIS
 #### Build & publish ####
 
 ```shell
-DISTRO=opensuse JAVA_VERSION=8 docker-compose -f docker-compose.yml run --rm jdk
+DISTRO=opensuse JAVA_VERSION=11 docker-compose build --pull && DISTRO=opensuse JAVA_VERSION=11 docker-compose push
+```
+
+```shell
+DISTRO=opensuse JAVA_VERSION=11 docker-compose -f docker-compose.yml run --rm jdk
 ```
 
 ### Windows ###
