@@ -4,7 +4,7 @@
 
 Around 10% faster than conventional one which is relevant for 'low-end' devices
 
-## How ##
+## How ? ##
 
 x86_64 Linux with docker, user with UID 10001, a member of GID 10001 and docker groups, enough disk space to store openJDK source and build dir in ```${HOME}```
 
@@ -12,16 +12,16 @@ x86_64 Linux with docker, user with UID 10001, a member of GID 10001 and docker 
 
 ### Linux ###
 
-#### Create & publish 'builder' image ####
-
-```shell
-DISTRO=opensuse docker-compose -f docker-compose-builder.yml build --pull && DISTRO=opensuse docker-compose -f docker-compose-builder.yml push
-```
-
-#### Build & publish ####
-
 ```shell
 DISTRO=opensuse JAVA_VERSION=8 docker-compose -f docker-compose.yml run --rm jdk
+```
+
+```shell
+DISTRO=opensuse JAVA_VERSION=11 docker-compose -f docker-compose.yml run --rm jdk
+```
+
+```shell
+DISTRO=opensuse JAVA_VERSION=17 docker-compose -f docker-compose.yml run --rm jdk
 ```
 
 ### Windows ###
