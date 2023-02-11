@@ -1,7 +1,7 @@
 version: '3.8'
 
-# DISTRO=opensuse JAVA_VERSION=8 docker-compose build --pull && DISTRO=opensuse JAVA_VERSION=8 docker-compose push
-# DISTRO=opensuse JAVA_VERSION=8 docker-compose -f docker-compose.yml run --rm jdk
+# DISTRO=opensuse JAVA_VERSION=11 docker-compose build --pull && DISTRO=opensuse JAVA_VERSION=11 docker-compose push
+# DISTRO=opensuse JAVA_VERSION=11 docker-compose -f docker-compose.yml run --rm jdk
 
 services:
   jdk:
