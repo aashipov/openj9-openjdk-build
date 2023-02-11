@@ -10,7 +10,7 @@ cups-devel fontconfig-devel freetype2-devel \
 libX11-devel libXi-devel libXinerama-devel libXrandr-devel libXrender-devel libXt-devel libXtst-devel libjpeg-devel libpng-devel libtool libxslt \
 pkgconfig xorg-x11-proto-devel xprop \
 which giflib-devel curl \
-cmake libdwarf-devel libelf-devel libnuma-devel nasm && \
+cmake libdwarf-devel libelf-devel libnuma-devel nasm libopenssl-devel && \
 zypper --non-interactive clean && \
 groupadd -g ${UID_GID} ${DUMMY_USER} && useradd -m -u ${UID_GID} -d /${DUMMY_USER}/ -g ${DUMMY_USER} ${DUMMY_USER} && \
 mkdir -p ${JAVA_HOME}/
