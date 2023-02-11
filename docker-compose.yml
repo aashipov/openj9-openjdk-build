@@ -1,0 +1,24 @@
+version: '3.8'
+
+# DISTRO=opensuse JAVA_VERSION=8 docker-compose build --pull && DISTRO=opensuse JAVA_VERSION=8 docker-compose push
+# DISTRO=opensuse JAVA_VERSION=8 docker-compose -f docker-compose.yml run --rm jdk
+
+services:
+  jdk:
+    image: ${DOCKER_HUB_USER_AND_REPOSITORY}:${DISTRO}${OPENJ9}-open${JDK}-${JDK}${JAVA_VERSION}
+    build:
+      context: .
+      dockerfile: Dockerfile.${DISTRO}.${JAVA_VERSION}
+    hostname: ${DISTRO}${OPENJ9}-open${JDK}-${JDK}${JAVA_VERSION}
+    container_name: ${DISTRO}${OPENJ9}-open${JDK}-${JDK}${JAVA_VERSION}
+    user: ${DUMMY_UID}:${DUMMY_UID}
+    working_dir: /${DUMMY_USER}/
+    command: /${DUMMY_USER}/${COMPOSE_PROJECT_NAME}/entrypoint${JAVA_VERSION}.bash ${JAVA_VERSION}
+    env_file:
+      - .env
+    volumes:
+      - ${HOME}/${OPENJ9}-open${JDK}-${JDK}${JAVA_VERSION}/:/${DUMMY_USER}/${OPENJ9}-open${JDK}-${JDK}${JAVA_VERSION}/:rw 
+      - ${HOME}/${JTREG}/:/${DUMMY_USER}/${JTREG}/:rw 
+      - ${HOME}/${GTEST}/:/${DUMMY_USER}/${GTEST}/:rw 
+      - ./:/${DUMMY_USER}/${COMPOSE_PROJECT_NAME}:ro 
+      - ${HOME}/.github_token:/${DUMMY_USER}/.github_token:ro
