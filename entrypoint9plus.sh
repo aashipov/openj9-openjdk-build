@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -ex
 
@@ -16,7 +16,8 @@ environment() {
     OPENJ9_OPENJDK="${OPENJ9}-openjdk"
 
     TAG_TO_BUILD=$(cat ${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION})
-    if [[ "${TAG_TO_BUILD}" == "" ]]; then
+    if [ "${TAG_TO_BUILD}" = "" ]
+    then
         printf "Can not find ${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION} file or it is empty\n"
         exit 1
     fi
@@ -28,12 +29,9 @@ environment() {
     # https://github.com/archlinux/svntogit-packages/blob/packages/java11-openjdk/trunk/PKGBUILD
     # Avoid optimization of HotSpot being lowered from O3 to O2
     _CFLAGS="-O3 -pipe"
-    if [[ "${OSTYPE}" == "cygwin" || "${OSTYPE}" == "msys" ]]; then
-        if [[ "${OSTYPE}" == "cygwin" ]]; then
-            TOP_DIR="/cygdrive/c"
-        elif [[ "${OSTYPE}" == "msys" ]]; then
-            TOP_DIR="/c"
-        fi
+    if [ "${OSTYPE}" = "cygwin" ]
+    then
+        TOP_DIR="/cygdrive/c"
         OS_TYPE="windows"
         export JAVA_HOME=${TOP_DIR}/dev/tools/openjdk${JAVA_VERSION}
         _CFLAGS="/O2"
@@ -43,12 +41,14 @@ environment() {
     GTEST_DIR="${TOP_DIR}/${GTEST}"
     OS_TYPE_AND_INSTRUCTION_SET="${OS_TYPE}-${INSTRUCTION_SET}"
 
-    if [[ "${JAVA_VERSION}" = "11" ]]; then
+    if [ "${JAVA_VERSION}" = "11" ]
+    then
         RELEASE_IMAGE_DIR=${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-normal-server-release/images/
-    elif [[ "${JAVA_VERSION}" = "17" ]]; then
+    elif [ "${JAVA_VERSION}" = "17" ] || [ "${JAVA_VERSION}" = "21" ] || [ "${JAVA_VERSION}" = "25" ]
+    then
         RELEASE_IMAGE_DIR=${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-server-release/images/
     else
-        printf "Version 11 or 17 only\n"
+        printf "Version 11, 17, 21 or 25 only\n"
         exit 1
     fi
 }
@@ -57,7 +57,8 @@ checkout() {
     git config --global user.email "anatoly.a.shipov@gmail.com"
     git config --global user.name "Anatoly Shipov"
     DEFAULT_BRANCH=openj9
-    if [ ! -d "${JDK_DIR}/.git" ]; then
+    if [ ! -d "${JDK_DIR}/.git" ]
+    then
         cd ${TOP_DIR}
         git clone https://github.com/ibmruntimes/${OPENJ9_OPENJDK}-${JDK}${JAVA_VERSION}.git
         cd ${JDK_DIR}
@@ -68,7 +69,8 @@ checkout() {
         git pull
     fi
 
-    if [ $(git tag -l "${TAG_TO_BUILD}") ]; then
+    if [ $(git tag -l "${TAG_TO_BUILD}") ]
+    then
         git checkout tags/${TAG_TO_BUILD}
     else
         printf "Can not find tag ${TAG_TO_BUILD}\n"
@@ -78,12 +80,6 @@ checkout() {
     rm -rf ${JDK_DIR}/omr/ ${JDK_DIR}/${OPENJ9}/
 
     bash get_source.sh -openj9-branch=${BRANCH_FROM_TAG} -omr-branch=${BRANCH_FROM_TAG}
-
-    cd ${JDK_DIR}/omr/
-    git checkout tags/${TAG_TO_BUILD}
-
-    cd ${JDK_DIR}/${OPENJ9}/
-    git checkout tags/${TAG_TO_BUILD}
 }
 
 build() {
@@ -105,7 +101,8 @@ build() {
 }
 
 publish() {
-    if [[ $? -eq 0 ]]; then
+    if [ $? -eq 0 ]
+    then
         cd ${RELEASE_IMAGE_DIR}
         DOT_TAR_DOT_GZ=".tar.gz"
         JDK_FILE_NAME=${JDK_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}
@@ -116,13 +113,15 @@ publish() {
         GZIP=-9 tar -czhf ${JRE_FILE_NAME} jre/
 
         GITHUB_TOKEN=$(cat ${HOME}/.github_token)
-        if [[ "${GITHUB_TOKEN}" != "" ]]; then
+        if [ "${GITHUB_TOKEN}" != "" ]
+        then
             GITHUB_OWNER=aashipov
             GITHUB_REPO=openj9-openjdk-build
             GITHUB_RELEASE_ID=92103892
 
             FILES_TO_UPLOAD=(${JDK_FILE_NAME} ${JRE_FILE_NAME})
-            for file_to_upload in "${FILES_TO_UPLOAD[@]}"; do
+            for file_to_upload in "${FILES_TO_UPLOAD[@]}"
+            do
                 #https://stackoverflow.com/a/7506695
                 FILE_NAME_URL_ENCODED=$(printf "${file_to_upload}" | hexdump -v -e '/1 "%02x"' | sed 's/\(..\)/%\1/g')
                 curl \
@@ -136,7 +135,8 @@ publish() {
 }
 
 do_test() {
-    if [[ $? -eq 0 ]]; then
+    if [ $? -eq 0 ]
+    then
         cd ${JDK_DIR}
         make run-test-tier1
     fi
