@@ -185,7 +185,7 @@ RUN for dir in lib lib64 lib/x86_64-linux-gnu ; do echo /usr/local/$dir ; done >
 
 FROM aashipov/openj9-openjdk-build:centosjdkbuilder AS jdk8u
 # DOCKER_BUILDKIT=1 docker build . --file=Dockerfile.centos --target=jdk8u --tag=aashipov/openj9-openjdk-build:centosjdk8u && docker push aashipov/openj9-openjdk-build:centosjdk8u
-RUN curl -L -o /tmp/openjdk.tar.gz https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u302-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u302b08.tar.gz && \
+RUN curl -L -o /tmp/openjdk.tar.gz https://github.com/aashipov/openjdk-build/releases/download/1.0.0/jdk7u-linux-amd64-jdk7u351-b01.tar.gz && \
 tar -xzf /tmp/openjdk.tar.gz -C ${JAVA_HOME}/ --strip-components=1 && \
 find "${JAVA_HOME}" -type f -name '*.debuginfo' -exec rm {} \; && \
 find "${JAVA_HOME}" -type f -name '*.diz' -exec rm {} \; && \

@@ -17,7 +17,7 @@ environment() {
   OPENJ9_OPENJDK="${OPENJ9}-openjdk"
 
   TAG_TO_BUILD=$(cat ${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION})
-  if [[ "${TAG_TO_BUILD}" == "" ]]
+  if [ "${TAG_TO_BUILD}" == "" ]
   then
     printf "Can not find ${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION} file or it is empty\n"
     exit 1
@@ -30,7 +30,7 @@ environment() {
   # https://raw.githubusercontent.com/archlinux/svntogit-packages/packages/java8-openjdk/trunk/PKGBUILD
   # Avoid optimization of HotSpot being lowered from O3 to O2
   _CFLAGS="-O3 -pipe"
-  if [[ "${OSTYPE}" == "cygwin" ]]
+  if [ "${OSTYPE}" == "cygwin" ]
   then
     TOP_DIR="/cygdrive/c"
     OS_TYPE="windows"
@@ -81,7 +81,7 @@ checkout() {
 
   rm -rf ${JDK_DIR}/omr/ ${JDK_DIR}/${OPENJ9}/
 
-  bash get_source.sh -openj9-branch=${BRANCH_FROM_TAG} -omr-branch=${BRANCH_FROM_TAG}
+  bash get_source.sh
 }
 
 build() {
@@ -96,7 +96,7 @@ build() {
   UPDATE_VER=${UPDATE_VER#"b"}
 
   local CONFIGURE_DETAILS="--verbose --with-debug-level=release --with-native-debug-symbols=none --with-jvm-variants=server --with-milestone=\"fcs\" --enable-unlimited-crypto --with-extra-cflags=\"${_CFLAGS}\" --with-extra-cxxflags=\"${_CFLAGS}\" --with-extra-ldflags=\"${_CFLAGS}\" --enable-jfr=yes --with-update-version=\"${MINOR_VER}\" --with-build-number=\"${UPDATE_VER}\""
-  if [[ "${OSTYPE}" == "cygwin" || "${OSTYPE}" == "msys" ]]
+  if [ "${OSTYPE}" == "cygwin" ]
   then
     CONFIGURE_DETAILS="${CONFIGURE_DETAILS} --with-freetype-src=${FREETYPE_SRC_DIR}"
   else
@@ -110,7 +110,7 @@ build() {
 }
 
 publish() {
-  if [[ $? -eq 0 ]]
+  if [ $? -eq 0 ]
   then
     local RELEASE_IMAGE_DIR=${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-normal-server-release/images/
     cd ${RELEASE_IMAGE_DIR}
@@ -122,13 +122,13 @@ publish() {
     GZIP=-9 tar -czhf ${JRE_FILE_NAME} j2re-image/
 
     local GITHUB_TOKEN=$(cat ${HOME}/.github_token)
-    if [[ "${GITHUB_TOKEN}" != "" ]]
+    if [ "${GITHUB_TOKEN}" != "" ]
     then
       local GITHUB_OWNER=aashipov
       local GITHUB_REPO=openj9-openjdk-build
       local GITHUB_RELEASE_ID=92103892
 
-      local FILES_TO_UPLOAD=(${JDK_FILE_NAME} ${JRE_FILE_NAME})
+      local FILES_TO_UPLOAD="${JDK_FILE_NAME} ${JRE_FILE_NAME}"
       for file_to_upload in "${FILES_TO_UPLOAD[@]}"
       do
         #https://stackoverflow.com/a/7506695

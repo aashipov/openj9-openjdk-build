@@ -79,7 +79,7 @@ checkout() {
 
     rm -rf ${JDK_DIR}/omr/ ${JDK_DIR}/${OPENJ9}/
 
-    bash get_source.sh -openj9-branch=${BRANCH_FROM_TAG} -omr-branch=${BRANCH_FROM_TAG}
+    bash get_source.sh
 }
 
 build() {
