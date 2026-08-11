@@ -15,7 +15,7 @@ environment() {
     OPENJ9="openj9"
     OPENJ9_OPENJDK="${OPENJ9}-openjdk"
 
-    TAG_TO_BUILD=$(cat ${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION})
+    TAG_TO_BUILD=$(cat "${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION}")
     if [ "${TAG_TO_BUILD}" = "" ]
     then
         printf "Can not find ${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION} file or it is empty\n"
@@ -43,10 +43,10 @@ environment() {
 
     if [ "${JAVA_VERSION}" = "11" ]
     then
-        RELEASE_IMAGE_DIR=${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-normal-server-release/images/
+        RELEASE_IMAGE_DIR="${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-normal-server-release/images/"
     elif [ "${JAVA_VERSION}" = "17" ] || [ "${JAVA_VERSION}" = "21" ] || [ "${JAVA_VERSION}" = "25" ]
     then
-        RELEASE_IMAGE_DIR=${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-server-release/images/
+        RELEASE_IMAGE_DIR="${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-server-release/images/"
     else
         printf "Version 11, 17, 21 or 25 only\n"
         exit 1
@@ -60,7 +60,7 @@ checkout() {
     if [ ! -d "${JDK_DIR}/.git" ]
     then
         cd ${TOP_DIR}
-        git clone https://github.com/ibmruntimes/${OPENJ9_OPENJDK}-${JDK}${JAVA_VERSION}.git
+        git clone "https://github.com/ibmruntimes/${OPENJ9_OPENJDK}-${JDK}${JAVA_VERSION}.git"
         cd ${JDK_DIR}
         git checkout tags/${TAG_TO_BUILD}
     else
@@ -71,13 +71,13 @@ checkout() {
 
     if [ $(git tag -l "${TAG_TO_BUILD}") ]
     then
-        git checkout tags/${TAG_TO_BUILD}
+        git checkout "tags/${TAG_TO_BUILD}"
     else
         printf "Can not find tag ${TAG_TO_BUILD}\n"
         exit 1
     fi
 
-    rm -rf ${JDK_DIR}/omr/ ${JDK_DIR}/${OPENJ9}/
+    rm -rf "${JDK_DIR}/omr/" "${JDK_DIR}/${OPENJ9}/"
 
     bash get_source.sh
 }
@@ -103,14 +103,14 @@ build() {
 publish() {
     if [ $? -eq 0 ]
     then
-        cd ${RELEASE_IMAGE_DIR}
+        cd "${RELEASE_IMAGE_DIR}"
         DOT_TAR_DOT_GZ=".tar.gz"
-        JDK_FILE_NAME=${JDK_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}
-        JRE_FILE_NAME=${JRE_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}
+        JDK_FILE_NAME="${JDK_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}"
+        JRE_FILE_NAME="${JRE_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}"
         find "${PWD}" -type f -name '*.debuginfo' -exec rm {} \;
         find "${PWD}" -type f -name '*.diz' -exec rm {} \;
-        GZIP=-9 tar -czhf ${JDK_FILE_NAME} jdk/
-        GZIP=-9 tar -czhf ${JRE_FILE_NAME} jre/
+        GZIP=-9 tar -czhf "${JDK_FILE_NAME}" jdk/
+        GZIP=-9 tar -czhf "${JRE_FILE_NAME}" jre/
 
         GITHUB_TOKEN=$(cat ${HOME}/.github_token)
         if [ "${GITHUB_TOKEN}" != "" ]
@@ -119,7 +119,7 @@ publish() {
             GITHUB_REPO=openj9-openjdk-build
             GITHUB_RELEASE_ID=92103892
 
-            FILES_TO_UPLOAD=(${JDK_FILE_NAME} ${JRE_FILE_NAME})
+            FILES_TO_UPLOAD=("${JDK_FILE_NAME}" "${JRE_FILE_NAME}")
             for file_to_upload in "${FILES_TO_UPLOAD[@]}"
             do
                 #https://stackoverflow.com/a/7506695

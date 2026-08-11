@@ -16,7 +16,7 @@ environment() {
   OPENJ9="openj9"
   OPENJ9_OPENJDK="${OPENJ9}-openjdk"
 
-  TAG_TO_BUILD=$(cat ${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION})
+  TAG_TO_BUILD=$(cat "${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION}")
   if [ "${TAG_TO_BUILD}" == "" ]
   then
     printf "Can not find ${_SCRIPT_DIR}/.tag_to_build_${JAVA_VERSION} file or it is empty\n"
@@ -25,7 +25,7 @@ environment() {
   BRANCH_FROM_TAG=$(printf "${TAG_TO_BUILD}\n" | cut -d '-' -f 2)
   BRANCH_FROM_TAG="v${BRANCH_FROM_TAG}-release"
 
-  local OS_TYPE="linux"
+  OS_TYPE="linux"
   TOP_DIR=${HOME}
   # https://raw.githubusercontent.com/archlinux/svntogit-packages/packages/java8-openjdk/trunk/PKGBUILD
   # Avoid optimization of HotSpot being lowered from O3 to O2
@@ -36,19 +36,6 @@ environment() {
     OS_TYPE="windows"
     export JAVA_HOME=${TOP_DIR}/dev/tools/openjdk${JAVA_VERSION}
     _CFLAGS="/O2"
-    local FREETYPE=freetype
-    local FREETYPE_AND_VERSION=${FREETYPE}-2.5.3
-    FREETYPE_SRC_DIR=${TOP_DIR}/dev/VCS/${FREETYPE_AND_VERSION}
-    if [ ! -d "${FREETYPE_SRC_DIR}" ]
-    then
-      local FREETYPE_TAR_GZ=${FREETYPE_AND_VERSION}.tar.gz
-      local FREETYPE_TAR_GZ_IN_TMP=/tmp/${FREETYPE_TAR_GZ}
-      rm -rf ${FREETYPE_SRC_DIR}
-      mkdir -p ${FREETYPE_SRC_DIR}
-      curl -L https://download-mirror.savannah.gnu.org/releases/${FREETYPE}/${FREETYPE}-old/${FREETYPE_TAR_GZ} -o ${FREETYPE_TAR_GZ_IN_TMP}
-      tar -xzf ${FREETYPE_TAR_GZ_IN_TMP} -C ${FREETYPE_SRC_DIR} --strip-components=1
-      rm -rf ${FREETYPE_TAR_GZ_IN_TMP}
-    fi
   fi
   JDK_DIR="${TOP_DIR}/${OPENJ9_OPENJDK}-${JDK}${JAVA_VERSION}"
   OS_TYPE_AND_INSTRUCTION_SET="${OS_TYPE}-${INSTRUCTION_SET}"
@@ -62,7 +49,7 @@ checkout() {
   if [ ! -d "${JDK_DIR}/.git" ]
   then
     cd ${TOP_DIR}
-    git clone https://github.com/ibmruntimes/${OPENJ9_OPENJDK}-${JDK}${JAVA_VERSION}.git
+    git clone "https://github.com/ibmruntimes/${OPENJ9_OPENJDK}-${JDK}${JAVA_VERSION}.git"
     cd ${JDK_DIR}
     git checkout tags/${TAG_TO_BUILD}
   else
@@ -79,7 +66,7 @@ checkout() {
     exit 1
   fi
 
-  rm -rf ${JDK_DIR}/omr/ ${JDK_DIR}/${OPENJ9}/
+  #rm -rf "${JDK_DIR}/omr/" "${JDK_DIR}/${OPENJ9}/"
 
   bash get_source.sh
 }
@@ -87,22 +74,20 @@ checkout() {
 build() {
   cd ${JDK_DIR}
 
-  VERSION_STRING=$(awk -F" := " '{print $2}' ${JDK_DIR}/closed/openjdk-tag.gmk)
+  VERSION_STRING=$(awk -F" := " '{print $2}' "${JDK_DIR}/closed/openjdk-tag.gmk")
 
-  local MINOR_VER=$(printf ${VERSION_STRING} | cut -d'-' -f 1)
+  MINOR_VER=$(printf ${VERSION_STRING} | cut -d'-' -f 1)
   MINOR_VER=${MINOR_VER#${JDK}${JAVA_VERSION}u}
 
-  local UPDATE_VER=$(printf ${VERSION_STRING} | cut -d'-' -f 2)
+  UPDATE_VER=$(printf ${VERSION_STRING} | cut -d'-' -f 2)
   UPDATE_VER=${UPDATE_VER#"b"}
 
-  local CONFIGURE_DETAILS="--verbose --with-debug-level=release --with-native-debug-symbols=none --with-jvm-variants=server --with-milestone=\"fcs\" --enable-unlimited-crypto --with-extra-cflags=\"${_CFLAGS}\" --with-extra-cxxflags=\"${_CFLAGS}\" --with-extra-ldflags=\"${_CFLAGS}\" --enable-jfr=yes --with-update-version=\"${MINOR_VER}\" --with-build-number=\"${UPDATE_VER}\""
-  if [ "${OSTYPE}" == "cygwin" ]
-  then
-    CONFIGURE_DETAILS="${CONFIGURE_DETAILS} --with-freetype-src=${FREETYPE_SRC_DIR}"
-  else
-    #CONFIGURE_DETAILS="${CONFIGURE_DETAILS} --with-toolchain-type=clang"
-    echo
-  fi
+  CONFIGURE_DETAILS="--verbose --with-debug-level=release --with-native-debug-symbols=none --with-jvm-variants=server --with-milestone=\"fcs\" --enable-unlimited-crypto --with-extra-cflags=\"${_CFLAGS}\" --with-extra-cxxflags=\"${_CFLAGS}\" --with-extra-ldflags=\"${_CFLAGS}\" --enable-jfr=yes --with-update-version=\"${MINOR_VER}\" --with-build-number=\"${UPDATE_VER}\""
+  # CONFIGURE_DETAILS="${CONFIGURE_DETAILS} --with-toolchain-type=clang"
+  # if [ "${OSTYPE}" == "cygwin" ]
+  # then
+  #     CONFIGURE_DETAILS="${CONFIGURE_DETAILS} --with-toolchain-version=2022"
+  # fi
   bash -c "bash configure ${CONFIGURE_DETAILS}"
 
   make clean
@@ -112,23 +97,23 @@ build() {
 publish() {
   if [ $? -eq 0 ]
   then
-    local RELEASE_IMAGE_DIR=${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-normal-server-release/images/
-    cd ${RELEASE_IMAGE_DIR}
-    local JDK_FILE_NAME=${JDK_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}
-    JRE_FILE_NAME=${JRE_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}
+    RELEASE_IMAGE_DIR="${JDK_DIR}/build/${OS_TYPE_AND_INSTRUCTION_SET}-normal-server-release/images/"
+    cd "${RELEASE_IMAGE_DIR}"
+    JDK_FILE_NAME="${JDK_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}"
+    JRE_FILE_NAME="${JRE_FLAVOR}-${OS_TYPE_AND_INSTRUCTION_SET}-${VERSION_STRING}-${BRANCH_FROM_TAG}${DOT_TAR_DOT_GZ}"
     find "${PWD}" -type f -name '*.debuginfo' -exec rm {} \;
     find "${PWD}" -type f -name '*.diz' -exec rm {} \;
-    GZIP=-9 tar -czhf ${JDK_FILE_NAME} j2sdk-image/
-    GZIP=-9 tar -czhf ${JRE_FILE_NAME} j2re-image/
+    GZIP=-9 tar -czhf "${JDK_FILE_NAME}" j2sdk-image/
+    GZIP=-9 tar -czhf "${JRE_FILE_NAME}" j2re-image/
 
-    local GITHUB_TOKEN=$(cat ${HOME}/.github_token)
+    GITHUB_TOKEN=$(cat ${HOME}/.github_token)
     if [ "${GITHUB_TOKEN}" != "" ]
     then
-      local GITHUB_OWNER=aashipov
-      local GITHUB_REPO=openj9-openjdk-build
-      local GITHUB_RELEASE_ID=92103892
+      GITHUB_OWNER=aashipov
+      GITHUB_REPO=openj9-openjdk-build
+      GITHUB_RELEASE_ID=92103892
 
-      local FILES_TO_UPLOAD="${JDK_FILE_NAME} ${JRE_FILE_NAME}"
+      FILES_TO_UPLOAD=("${JDK_FILE_NAME}" "${JRE_FILE_NAME}")
       for file_to_upload in "${FILES_TO_UPLOAD[@]}"
       do
         #https://stackoverflow.com/a/7506695

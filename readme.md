@@ -8,7 +8,7 @@ Around 10% faster than conventional one which is relevant for 'low-end' devices
 
 x86_64 Linux with docker, user with UID 10001, a member of GID 10001 and docker groups, enough disk space to store openJDK source and build dir in ```${HOME}```
 
-[Windows host](win.txt) 
+[Windows host](win.md) 
 
 ### Linux ###
 
